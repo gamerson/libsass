@@ -166,6 +166,7 @@ debug-shared: shared
 
 static: lib/libsass.a
 shared: $(LIBRARIES)
+dylib: lib/libsass.dylib
 
 lib/libsass.a: $(COBJECTS) $(OBJECTS)
 	$(MKDIR) lib
@@ -174,6 +175,10 @@ lib/libsass.a: $(COBJECTS) $(OBJECTS)
 lib/libsass.so: $(COBJECTS) $(OBJECTS)
 	$(MKDIR) lib
 	$(CXX) -shared $(LDFLAGS) -o $@ $(COBJECTS) $(OBJECTS) $(LDLIBS)
+
+lib/libsass.dylib: $(COBJECTS) $(OBJECTS)
+	$(MKDIR) lib
+	$(CXX) -dynamiclib $(LDFLAGS) -o $@ $(COBJECTS) $(OBJECTS) $(LDLIBS)
 
 lib/libsass.dll: $(COBJECTS) $(OBJECTS) $(RCOBJECTS)
 	$(MKDIR) lib
