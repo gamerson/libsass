@@ -65,7 +65,7 @@ ifeq ($(UNAME),Darwin)
 endif
 
 ifneq ($(BUILD),shared)
-	BUILD = static
+	BUILD = shared
 endif
 
 ifeq (,$(PREFIX))
@@ -135,13 +135,17 @@ ifeq (MinGW,$(UNAME))
 	ifeq (shared,$(BUILD))
 		CFLAGS    += -D ADD_EXPORTS 
 		CXXFLAGS  += -D ADD_EXPORTS 
-		LIBRARIES += lib/libsass.dll
+		LIBRARIES = lib/sass.dll
 		RESOURCES += res/resource.rc
 	endif
 else
 	CFLAGS   += -fPIC
 	CXXFLAGS += -fPIC
 	LDFLAGS  += -fPIC
+endif
+
+ifeq ($(UNAME),Darwin)
+	LIBRARIES = lib/libsass.dylib
 endif
 
 OBJECTS = $(SOURCES:.cpp=.o)
@@ -171,13 +175,17 @@ lib/libsass.a: $(COBJECTS) $(OBJECTS)
 	$(MKDIR) lib
 	$(AR) rcvs $@ $(COBJECTS) $(OBJECTS)
 
+lib/libsass.dylib: $(COBJECTS) $(OBJECTS)
+	$(MKDIR) lib
+	$(CXX) -dynamiclib $(LDFLAGS) -o $@ $(COBJECTS) $(OBJECTS) $(LDLIBS)
+
 lib/libsass.so: $(COBJECTS) $(OBJECTS)
 	$(MKDIR) lib
 	$(CXX) -shared $(LDFLAGS) -o $@ $(COBJECTS) $(OBJECTS) $(LDLIBS)
 
-lib/libsass.dll: $(COBJECTS) $(OBJECTS) $(RCOBJECTS)
+lib/sass.dll: $(COBJECTS) $(OBJECTS)
 	$(MKDIR) lib
-	$(CXX) -shared $(LDFLAGS) -o $@ $(COBJECTS) $(OBJECTS) $(RCOBJECTS) $(LDLIBS) -s -Wl,--subsystem,windows,--out-implib,lib/libsass.a
+	$(CXX) -shared $(LDFLAGS) -o $@ $(COBJECTS) $(OBJECTS) -Wl,--subsystem,windows,--out-implib,lib/libsass.a
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
